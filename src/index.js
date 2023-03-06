@@ -4,7 +4,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { fetchFn } from './fetchFn.js';
 
-const searchForm = document.querySelector('.search-form');
+const searchForm = document.querySelector('.search__form');
 searchForm.addEventListener('submit', onSubmit);
 
 function onSubmit(e) {
@@ -31,10 +31,10 @@ async function sendRequest(searchString) {
 
 function renderMarkup(items) {
   const cardCollection = items.map(item => drawOneCard(item)).join('');
-  const gallery = document.querySelector('.gallery');
-  gallery.innerHTML = cardCollection;
+  const galleryContainer = document.querySelector('.gallery__container');
+  galleryContainer.innerHTML = cardCollection;
 
-  const lightbox = new SimpleLightbox('.gallery a', {
+  const lightbox = new SimpleLightbox('.gallery__container a', {
     captionsData: 'alt',
     overlayOpacity: 1,
   });
@@ -42,28 +42,28 @@ function renderMarkup(items) {
 
 function drawOneCard(item) {
   return `
-  <a claass="photo" href="${item.largeImageURL}">
-
+  <a class="photo" href="${item.largeImageURL}">
+    <div class="photo__card">
       <img src="${item.webformatURL}" alt="${item.tags}" loading="lazy" />
       <div class="info">
-        <p class="info-item">
+        <p class="info__item">
           <b>Likes</b>
           ${item.likes}
         </p>
-        <p class="info-item"> 
+        <p class="info__item"> 
           <b>Views</b>
           ${item.views}
         </p>
-        <p class="info-item">
+        <p class="info__item">
           <b>Comments</b>
           ${item.comments}
         </p>
-        <p class="info-item">
+        <p class="info__item">
           <b>Downloads</b>
           ${item.downloads}
         </p>
       </div>
-
+    </div>
   </a>
   `;
 }

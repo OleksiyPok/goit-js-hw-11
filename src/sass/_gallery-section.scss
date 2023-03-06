@@ -1,0 +1,14 @@
+.gallery__container {
+  padding: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.gallery__container .photo {
+  width: calc((100% - 75px) / 4);
+}
+
+.photo__card img {
+  width: 100%;
+}

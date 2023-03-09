@@ -6,7 +6,7 @@ const SAFESEARCH = 'true';
 const PAGE = '';
 const PER_PAGE = '';
 
-async function fetchFn(searchString) {
+async function fetchItems(searchString) {
   const options = {
     key: API_KEY,
     q: searchString,
@@ -40,4 +40,4 @@ async function fetchFn(searchString) {
   return responce.json();
 }
 
-export { fetchFn };
+export { fetchItems };

@@ -2,27 +2,44 @@ import debounce from 'lodash.debounce';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import { fetchFn } from './fetchFn.js';
+// import { fetchItems } from './fetchFn.js';
+import { ApiService } from './api-service.js';
 
 const searchForm = document.querySelector('.search__form');
-searchForm.addEventListener('submit', onSubmit);
+searchForm.addEventListener('submit', onSubmitSearch);
+const loadMore = document.querySelector('.load-more');
+loadMore.addEventListener('click', onLoadMore);
 
-function onSubmit(e) {
+const apiService = new ApiService();
+
+function onSubmitSearch(e) {
   e.preventDefault();
   const currentInput = e.currentTarget.elements.searchQuery.value;
-  const currentSearch = currentInput.trim().replace(/ +/g, '+');
-  if (currentSearch) sendRequest(currentSearch);
+  const currentSearch = validateSearchString(currentInput);
 
-  // console.log('currentSearch:', currentSearch);
+  apiService.resetPage();
+
+  if (currentSearch) {
+    apiService.query = currentSearch;
+    apiService.fetchItems().then(responseProcessing);
+  }
 }
 
-async function sendRequest(searchString) {
-  const responce = await fetchFn(searchString);
-  console.log('responce:', responce);
+function onLoadMore() {
+  apiService.incrementPage();
+  apiService.fetchItems().then(responseProcessing);
+}
+
+function validateSearchString(searchString) {
+  return searchString.trim().replace(/ +/g, '+');
+}
+
+async function responseProcessing(responce) {
   if (responce.hits.length == 0) {
     Notify.info(
       'Sorry, there are no images matching your search query. Please try again.'
     );
+    clearGalleryContainer();
   } else {
     Notify.info(`Hooray! We found ${responce.totalHits} images.`);
     renderMarkup(responce.hits);
@@ -32,20 +49,22 @@ async function sendRequest(searchString) {
 function renderMarkup(items) {
   const cardCollection = items.map(item => drawOneCard(item)).join('');
   const galleryContainer = document.querySelector('.gallery__container');
+  // clearGalleryContainer();
   galleryContainer.innerHTML = cardCollection;
 
   const lightbox = new SimpleLightbox('.gallery__container a', {
     captionsData: 'alt',
-    overlayOpacity: 1,
+    overlayOpacity: 0.8,
   });
 }
 
 function drawOneCard(item) {
   return `
-  <a class="photo" href="${item.largeImageURL}">
-    <div class="photo__card">
-      <img src="${item.webformatURL}" alt="${item.tags}" loading="lazy" />
-      <div class="info">
+  <a class="gallery__item" href="${item.largeImageURL}">
+      <div class="gallery__image-container">
+        <img class="gallery__image" src="${item.webformatURL}" alt="${item.tags}" loading="lazy" />
+      </div>
+      <div class="info gallery__info">
         <p class="info__item">
           <b>Likes</b>
           ${item.likes}
@@ -63,7 +82,11 @@ function drawOneCard(item) {
           ${item.downloads}
         </p>
       </div>
-    </div>
   </a>
   `;
+}
+
+function clearGalleryContainer() {
+  const galleryContainer = document.querySelector('.gallery__container');
+  galleryContainer.innerHTML = '';
 }

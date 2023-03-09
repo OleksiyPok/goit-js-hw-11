@@ -40,7 +40,7 @@ function validateSearchString(searchString) {
 
 function responseProcessing(responce) {
   if (responce.data.hits.length == 0) {
-    Notify.info(
+    Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
     clearGalleryContainer();

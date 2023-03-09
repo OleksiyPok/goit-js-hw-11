@@ -1,15 +1,27 @@
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '34108164-696ccaa844df7defeecc2723b';
 const IMAGE_TYPE = 'photo';
-const ORIENTATION = '';
+const CATEGORY = '';
+const MIN_WIGHT = '';
+const MIN_HEIGHT = '';
+const COLORS = '';
+const ORIENTATION = 'horisontal';
 const SAFESEARCH = 'true';
 const PAGE = '';
-const PER_PAGE = '4';
+const PER_PAGE = '40';
 
 class ApiService {
   constructor() {
     this.page = 1;
     this.searchQuery = '';
+  }
+
+  get currentPage() {
+    return this.page;
+  }
+
+  set currentPage(newPage) {
+    this.page = newPage;
   }
 
   get query() {
@@ -63,3 +75,4 @@ class ApiService {
   }
 }
 export { ApiService };
+export { PER_PAGE };

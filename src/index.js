@@ -2,24 +2,29 @@ import debounce from 'lodash.debounce';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-// import { fetchItems } from './fetchFn.js';
-import { ApiService } from './api-service.js';
+import { ApiService, PER_PAGE } from './api-service.js';
 
 const searchForm = document.querySelector('.search__form');
 searchForm.addEventListener('submit', onSubmitSearch);
 const loadMore = document.querySelector('.load-more');
 loadMore.addEventListener('click', onLoadMore);
+hideButtonMore();
 
 const apiService = new ApiService();
 
 function onSubmitSearch(e) {
   e.preventDefault();
+
+  hideButtonMore();
   const currentInput = e.currentTarget.elements.searchQuery.value;
   const currentSearch = validateSearchString(currentInput);
 
   apiService.resetPage();
 
-  if (currentSearch) {
+  if (!currentSearch) {
+    clearGalleryContainer();
+    Notify.warning('Enter text to search');
+  } else {
     apiService.query = currentSearch;
     apiService.fetchItems().then(responseProcessing);
   }
@@ -40,19 +45,28 @@ async function responseProcessing(responce) {
       'Sorry, there are no images matching your search query. Please try again.'
     );
     clearGalleryContainer();
+    hideButtonMore();
   } else {
-    Notify.info(`Hooray! We found ${responce.totalHits} images.`);
+    Notify.success(`Hooray! We found ${responce.totalHits} images.`);
     renderMarkup(responce.hits);
+    showButtonMore();
+  }
+
+  if (apiService.currentPage * PER_PAGE >= responce.totalHits) {
+    Notify.warning(
+      "We're sorry, but you've reached the end of search results.."
+    );
+    hideButtonMore();
   }
 }
 
 function renderMarkup(items) {
   const cardCollection = items.map(item => drawOneCard(item)).join('');
   const galleryContainer = document.querySelector('.gallery__container');
-  // clearGalleryContainer();
+  clearGalleryContainer();
   galleryContainer.innerHTML = cardCollection;
 
-  const lightbox = new SimpleLightbox('.gallery__container a', {
+  const gallery = new SimpleLightbox('.gallery__container a', {
     captionsData: 'alt',
     overlayOpacity: 0.8,
   });
@@ -89,4 +103,12 @@ function drawOneCard(item) {
 function clearGalleryContainer() {
   const galleryContainer = document.querySelector('.gallery__container');
   galleryContainer.innerHTML = '';
+}
+
+function hideButtonMore() {
+  loadMore.style.visibility = 'hidden';
+}
+
+function showButtonMore() {
+  loadMore.style.visibility = 'visible';
 }

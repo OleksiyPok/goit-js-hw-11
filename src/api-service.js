@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// to add a parameter to request, add the parameter as a string constant
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '34108164-696ccaa844df7defeecc2723b';
 const IMAGE_TYPE = 'photo';

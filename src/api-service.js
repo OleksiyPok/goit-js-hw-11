@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const BASE_URL = 'https://pixabay.com/api/';
 const API_KEY = '34108164-696ccaa844df7defeecc2723b';
 const IMAGE_TYPE = 'photo';
@@ -32,7 +34,7 @@ class ApiService {
     this.searchQuery = newQuery;
   }
 
-  async fetchItems() {
+  async getItems() {
     const options = {
       key: API_KEY,
       q: this.searchQuery,
@@ -62,8 +64,7 @@ class ApiService {
     const PARAMS = params.join('&');
     const FULL_REQEST = BASE_URL + '?' + PARAMS;
 
-    const responce = await fetch(FULL_REQEST);
-    return responce.json();
+    return await axios.get(FULL_REQEST);
   }
 
   incrementPage() {

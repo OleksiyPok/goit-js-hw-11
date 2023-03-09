@@ -22,40 +22,43 @@ function onSubmitSearch(e) {
 
   if (!currentSearch) {
     clearGalleryContainer();
-    Notify.warning('Enter text to search');
+    Notify.warning('Type the text to search');
   } else {
     apiService.query = currentSearch;
-    apiService.fetchItems().then(responseProcessing);
+    apiService.getItems().then(responseProcessing);
   }
 }
 
 function onLoadMore() {
   apiService.incrementPage();
-  apiService.fetchItems().then(responseProcessing);
+  apiService.getItems().then(responseProcessing);
 }
 
 function validateSearchString(searchString) {
   return searchString.trim().replace(/ +/g, '+');
 }
 
-async function responseProcessing(responce) {
-  if (responce.hits.length == 0) {
+function responseProcessing(responce) {
+  if (responce.data.hits.length == 0) {
     Notify.info(
       'Sorry, there are no images matching your search query. Please try again.'
     );
     clearGalleryContainer();
     hideButtonMore();
   } else {
-    Notify.success(`Hooray! We found ${responce.totalHits} images.`);
-    renderMarkup(responce.hits);
-    showButtonMore();
-  }
-
-  if (apiService.currentPage * PER_PAGE >= responce.totalHits) {
-    Notify.warning(
-      "We're sorry, but you've reached the end of search results.."
+    const pages = Math.round(responce.data.totalHits / PER_PAGE);
+    Notify.success(
+      `Hooray! We found ${responce.data.totalHits} images. Page ${apiService.currentPage} from ${pages}`
     );
-    hideButtonMore();
+    renderMarkup(responce.data.hits);
+    showButtonMore();
+
+    if (apiService.currentPage * PER_PAGE >= responce.data.totalHits) {
+      Notify.warning(
+        "We're sorry, but you've reached the end of search results.."
+      );
+      hideButtonMore();
+    }
   }
 }
 
